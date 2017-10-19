@@ -80,16 +80,12 @@ namespace HarryPotterShoppingCart
             switch (count)
             {
                 case 2:
-                    result -= 0.05m;
-                    break;
                 case 3:
-                    result -= 0.1m;
+                    result -= (count - 1) * 0.05m;
                     break;
                 case 4:
-                    result -= 0.2m;
-                    break;
                 case 5:
-                    result -= 0.25m;
+                    result -= count * 0.05m;
                     break;
             }
 
@@ -122,14 +118,30 @@ namespace HarryPotterShoppingCart
         /// <returns>折扣後總價</returns>
         public decimal MemberDiscount(decimal totalPrice, MemberType type, int count)
         {
-            if (type == MemberType.VIP && totalPrice >= 500)
+            if (type == MemberType.VIP)
             {
+                totalPrice = VIPMemberDiscount(totalPrice);
+            }
+            else if (type == MemberType.Normal)
+            {
+                totalPrice = NormalMemberDiscount(totalPrice, count);
+            }
+
+            return totalPrice;
+        }
+
+        public decimal VIPMemberDiscount(decimal totalPrice)
+        {
+            if (totalPrice >= 500)
                 totalPrice *= 0.8m;
-            }
-            else if (type == MemberType.Normal && totalPrice >= 1000 && count > 3)
-            {
+
+            return totalPrice;
+        }
+
+        public decimal NormalMemberDiscount(decimal totalPrice, int count)
+        {
+            if (totalPrice >= 1000 && count > 3)
                 totalPrice *= 0.85m;
-            }
 
             return totalPrice;
         }
@@ -142,20 +154,30 @@ namespace HarryPotterShoppingCart
         /// <returns>運費</returns>
         public decimal Delievery(int totalCount, DelieveryType type)
         {
-            if (totalCount > 5 && type == DelieveryType.Mail)
-                throw new Exception("5件以上只能用黑貓。");
-
             decimal delieveryPrice = 0m;
             if (type == DelieveryType.Mail)
             {
-                delieveryPrice = 50m;
+                delieveryPrice = DelieveryMail(totalCount);
             }
             else if (type == DelieveryType.BlackCat)
             {
-                delieveryPrice = 100m;
+                delieveryPrice = DelieveryBlackCat();
             }
 
             return delieveryPrice;
+        }
+
+        public decimal DelieveryMail(int totalCount)
+        {
+            if (totalCount > 5)
+                throw new Exception("5件以上只能用黑貓。");
+
+            return 50m;
+        }
+
+        public decimal DelieveryBlackCat()
+        {
+            return 100m;
         }
 
         /// <summary>
